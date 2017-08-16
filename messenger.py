@@ -2,6 +2,8 @@ import string
 import random
 import math
 import sys
+import os.path
+import pickle
 
 #pseudocode
 
@@ -14,8 +16,9 @@ def generateRSAKeys(size = 2048):
 	return (e, n, d)
 	
 def registerWithServer(e, n):
-	#send server e and n, since they are storing this, that can just be considered a username?
-	#get their e and n values too
+	#send server e, n, and the associated userID
+	#get the serber e and n values too
+	userID = generateRandomString(10)
 	serverE = 0
 	serverN = 1
 	#write these to some log
@@ -42,7 +45,52 @@ def authenticateWithServer(serverE, serverN, d, n):
 	if decryptedMessage != message:
 		print "Server failed to authenticate itself. Do not trust addresses provided by this server. Exiting."
 		sys.exit()
-	#
+	#this process needs to be done in reverse too
+	
+def getAddress(userID):
+	#send server of known friend, receive IP address back
+	recipientIP = "0.0.0.0"
+	return recipientIP
+
+def loadFriendsList(fileName = 'friendsList.pkl'):
+	friendsList = {}
+	if os.path.isfile(fileName) == False:
+		with open(fileName, 'wb') as f:
+			pickle.dump(friendsList, f, pickle.HIGHEST_PROTOCOL)
+	with open(fileName, 'rb') as f:
+		friendsList = pickle.load(f)
+	return friendsList
+	
+def saveFriendsList(friendsList, fileName = 'friendsList.pkl'):
+	with open(fileName, 'wb') as f:
+			pickle.dump(friendsList, f, pickle.HIGHEST_PROTOCOL)
+	
+	
+if __name__ == '__main__':
+	friendsList = loadFriendsList()
+	onlineFriends = {}
+	while True:
+		print "\nWecome to Kevin and Drew's dope messenger. What do you want to do?"
+		print "1. View online friends"
+		print "2. View all friends"
+		print "3. Add a friend"
+		print "4. Remove a friend\n"
+		optionChoice = raw_input("Type an option and press enter: ")
+		if optionChoice == '2':
+			for n in friendsList:
+				print n
+		if optionChoice == '3':
+			user = raw_input("Name the user to add: ")
+			e = raw_input("RSA e: ")
+			n = raw_input("RSA n: ")
+			friendsList[user] = (e, n)
+			saveFriendsList(friendsList)
+		if optionChoice == '4':
+			user = raw_input("Name of the user to delete: ")
+			del friendsList[user]
+			saveFriendsList(friendsList)
+	
+
 	
 	
 	
